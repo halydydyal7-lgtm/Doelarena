@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎮 مینی‌اپ دوئل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #0b0e1a 0%, #1a1f2f 100%);
+            color: #e0e5f0;
+            min-height: 100vh;
+            padding-bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #1a1f2f; }
+        ::-webkit-scrollbar-thumb { background: #4a6cf7; border-radius: 10px; }
+
+        .header {
+            width: 100%;
+            padding: 18px 20px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 31, 47, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #2a3050;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #4a6cf7, #9b59b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header .balance-badge {
+            background: #2a3050;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #f1c40f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 480px;
+            padding: 16px 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .page.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(42, 48, 80, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(74, 108, 247, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #aab4d0;
+        }
+        .card-title i { color: #4a6cf7; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #4a6cf7, #6a4cf7);
+            border: none;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+        }
+        .btn:hover { transform: scale(1.02); box-shadow: 0 6px 25px rgba(74, 108, 247, 0.5); }
+        .btn:active { transform: scale(0.98); }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: none;
+            border: 1px solid #3a4060;
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
+        .btn-success { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .btn-gold {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: #1a1f2f;
+        }
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 14px;
+            width: auto;
+        }
+        .btn-block { width: 100%; }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .btn-group .btn { flex: 1; min-width: 60px; }
+
+        .bet-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .bet-options .btn { font-size: 14px; padding: 10px; }
+
+        .choice-grid {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        .choice-card {
+            background: #2a3050;
+            border-radius: 18px;
+            padding: 16px 10px;
+            text-align: center;
+            flex: 1;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 2px solid transparent;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .choice-card:hover { transform: translateY(-4px); border-color: #4a6cf7; }
+        .choice-card.selected {
+            border-color: #f1c40f;
+            background: #3a4060;
+        }
+        .choice-card i { font-size: 40px; display: block; margin-bottom: 6px; }
+        .choice-card span { font-size: 14px; font-weight: 500; }
+
+        .input-group {
+            margin: 12px 0;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            color: #8892b0;
+            margin-bottom: 6px;
+        }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid #3a4060;
+            background: rgba(0,0,0,0.3);
+            color: #e0e5f0;
+            font-size: 16px;
+            outline: none;
+        }
+        .input-group input:focus, .input-group textarea:focus {
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.2);
+        }
+        .input-group textarea { resize: vertical; min-height: 60px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 480px;
+            background: rgba(26, 31, 47, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 12px;
+            border-top: 1px solid #2a3050;
+            z-index: 20;
+        }
+        .nav-item {
+            text-align: center;
+            color: #8892b0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 2px; }
+        .nav-item.active {
+            color: #4a6cf7;
+            background: rgba(74, 108, 247, 0.15);
+        }
+
+        .game-status {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 14px;
+            margin: 10px 0;
+        }
+
+        .limit-info {
+            background: rgba(241, 196, 15, 0.1);
+            border-right: 3px solid #f1c40f;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #f1c40f;
+            margin: 10px 0;
+        }
+        .limit-info i { margin-left: 8px; }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .file-input-wrapper .btn {
+            pointer-events: none;
+        }
+        .selected-file-name {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #8892b0;
+        }
+        @media (max-width: 480px) {
+            .header h1 { font-size: 17px; }
+            .bet-options { grid-template-columns: repeat(2, 1fr); }
+            .choice-grid { flex-wrap: wrap; }
+            .choice-card { flex: 0 0 30%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1><i class="fas fa-gamepad"></i> دوئل‌آرنا</h1>
+    <div class="balance-badge">
+        <i class="fas fa-coins"></i> <span id="balanceDisplay">۰</span>
+    </div>
+</div>
+
+<!-- ========== صفحه اصلی ========== -->
+<div class="page active" id="page-home">
+    <div class="card" style="text-align:center; padding:30px 20px;">
+        <i class="fas fa-trophy" style="font-size:48px; color:#f1c40f; margin-bottom:10px;"></i>
+        <h2 style="font-size:24px;">به میدان نبرد خوش آمدید!</h2>
+        <p style="color:#8892b0; margin:6px 0 16px;">با دوئل سنگ-کاغذ-قیچی سکه جمع کن و جایزه بگیر</p>
+        <button class="btn btn-gold" onclick="navigateTo('duel')"><i class="fas fa-crosshairs"></i> شروع دوئل</button>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-chart-simple"></i> وضعیت شما</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div><span style="color:#8892b0;">🎮 بازی‌ها</span><br><span id="statGames">۰</span></div>
+            <div><span style="color:#8892b0;">🏆 برد</span><br><span id="statWins">۰</span></div>
+            <div><span style="color:#8892b0;">📉 باخت</span><br><span id="statLoses">۰</span></div>
+            <div><span style="color:#8892b0;">⭐ سطح</span><br><span id="statLevel">۰</span></div>
+        </div>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <button class="btn btn-secondary" onclick="sendCommand('get_balance')"><i class="fas fa-wallet"></i> موجودی</button>
+        <button class="btn btn-secondary" onclick="sendCommand('get_invite')"><i class="fas fa-user-plus"></i> دعوت</button>
+        <button class="btn btn-secondary" onclick="navigateTo('purchase')"><i class="fas fa-cart-plus"></i> خرید سکه</button>
+        <button class="btn btn-secondary" onclick="navigateTo('withdraw')"><i class="fas fa-hand-holding-usd"></i> برداشت</button>
+        <button class="btn btn-secondary" onclick="navigateTo('help')"><i class="fas fa-question-circle"></i> راهنما</button>
+    </div>
+</div>
+
+<!-- ========== صفحه دوئل ========== -->
+<div class="page" id="page-duel">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-coins"></i> مبلغ دوئل (سکه)</div>
+        <div class="bet-options" id="betOptions">
+            <button class="btn btn-secondary btn-sm bet-btn" data-amount="5000">۵,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm bet-btn" data-amount="20000">۲۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm bet-btn" data-amount="50000">۵۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm bet-btn" data-amount="100000">۱۰۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm bet-btn" data-amount="200000">۲۰۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm bet-btn" data-amount="500000">۵۰۰,۰۰۰</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-arrows-rotate"></i> تعداد راندها</div>
+        <div class="btn-group" id="modeGroup">
+            <button class="btn btn-secondary btn-sm mode-btn" data-mode="3">۳ راند</button>
+            <button class="btn btn-secondary btn-sm mode-btn" data-mode="5">۵ راند</button>
+            <button class="btn btn-secondary btn-sm mode-btn" data-mode="7">۷ راند</button>
+        </div>
+    </div>
+    <button class="btn btn-gold" id="startDuelBtn" onclick="startDuel()"><i class="fas fa-play"></i> شروع دوئل</button>
+    <button class="btn btn-secondary" onclick="navigateTo('home')" style="margin-top:10px;">🔙 بازگشت</button>
+</div>
+
+<!-- ========== صفحه بازی ========== -->
+<div class="page" id="page-gameplay">
+    <div class="card">
+        <div class="game-status" id="gameStatus">⏳ در حال جستجوی حریف...</div>
+        <div id="roundInfo" style="text-align:center; color:#8892b0;">راند ۱ از ۳</div>
+        <div style="display:flex; justify-content:space-between; margin:12px 0;">
+            <span>شما: <strong id="myScore">۰</strong></span>
+            <span>حریف: <strong id="oppScore">۰</strong></span>
+        </div>
+        <div class="choice-grid" id="choiceGrid">
+            <div class="choice-card" data-choice="rock" onclick="makeChoice('rock')">
+                <i class="fas fa-hand-rock"></i><span>سنگ</span>
+            </div>
+            <div class="choice-card" data-choice="paper" onclick="makeChoice('paper')">
+                <i class="fas fa-hand-paper"></i><span>کاغذ</span>
+            </div>
+            <div class="choice-card" data-choice="scissors" onclick="makeChoice('scissors')">
+                <i class="fas fa-hand-scissors"></i><span>قیچی</span>
+            </div>
+        </div>
+        <button class="btn btn-secondary" onclick="endGameplay()"><i class="fas fa-times"></i> خروج از بازی</button>
+    </div>
+</div>
+
+<!-- ========== صفحه خرید ========== -->
+<div class="page" id="page-purchase">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-university"></i> شماره کارت برای واریز</div>
+        <p style="direction:ltr; font-size:18px; font-weight:600; background:#0b0e1a; padding:10px; border-radius:10px; text-align:center;">6219861851166826</p>
+        <p style="color:#8892b0;">به نام: سید محمد مهدی حسنی</p>
+        <p style="color:#f1c40f; font-size:14px;">⚠️ فقط کارت به کارت – رسید را ارسال کنید</p>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-coins"></i> مبلغ (تومان = سکه)</div>
+        <div class="bet-options" id="purchaseAmounts">
+            <button class="btn btn-secondary btn-sm purchase-btn" data-amount="5000">۵,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm purchase-btn" data-amount="20000">۲۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm purchase-btn" data-amount="50000">۵۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm purchase-btn" data-amount="100000">۱۰۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm purchase-btn" data-amount="500000">۵۰۰,۰۰۰</button>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-receipt"></i> رسید واریز</div>
+        <div class="input-group">
+            <label>شماره پیگیری یا توضیحات (اختیاری)</label>
+            <textarea id="receiptText" placeholder="شماره پیگیری یا توضیحات..."></textarea>
+        </div>
+        <div class="input-group">
+            <label>📸 عکس رسید</label>
+            <div class="file-input-wrapper">
+                <button class="btn btn-secondary btn-sm"><i class="fas fa-upload"></i> انتخاب عکس</button>
+                <input type="file" id="receiptPhoto" accept="image/*" capture="environment">
+            </div>
+            <div id="selectedFileName" class="selected-file-name">هیچ عکسی انتخاب نشده</div>
+        </div>
+    </div>
+    <button class="btn btn-success" onclick="sendPurchase()"><i class="fas fa-check"></i> ثبت درخواست خرید</button>
+    <button class="btn btn-secondary" onclick="navigateTo('home')" style="margin-top:10px;">🔙 بازگشت</button>
+</div>
+
+<!-- ========== صفحه برداشت ========== -->
+<div class="page" id="page-withdraw">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-info-circle"></i> شرایط برداشت</div>
+        <ul style="list-style:none; color:#8892b0; font-size:14px;">
+            <li>✅ حداقل موجودی: ۱۰,۰۰۰ سکه</li>
+            <li>✅ حداکثر هر برداشت: ۲۵۰,۰۰۰ سکه</li>
+            <li>✅ حداکثر برداشت روزانه (۲۴ ساعت): ۲۵۰,۰۰۰ سکه</li>
+        </ul>
+        <div class="limit-info">
+            <i class="fas fa-clock"></i> امروز <span id="todayWithdraw">۰</span> سکه برداشت کرده‌اید.
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-credit-card"></i> شماره کارت مقصد</div>
+        <div class="input-group">
+            <input type="text" id="withdrawCard" placeholder="۱۶ رقم بدون فاصله" maxlength="16">
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="registerCard()"><i class="fas fa-save"></i> ثبت کارت</button>
+    </div>
+    <div class="card">
+        <div class="card-title"><i class="fas fa-hand-holding-usd"></i> مبلغ برداشت (سکه)</div>
+        <div class="bet-options" id="withdrawAmounts">
+            <button class="btn btn-secondary btn-sm withdraw-btn" data-amount="10000">۱۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm withdraw-btn" data-amount="50000">۵۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm withdraw-btn" data-amount="100000">۱۰۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm withdraw-btn" data-amount="200000">۲۰۰,۰۰۰</button>
+            <button class="btn btn-secondary btn-sm withdraw-btn" data-amount="250000">۲۵۰,۰۰۰</button>
+        </div>
+    </div>
+    <button class="btn btn-danger" onclick="sendWithdraw()"><i class="fas fa-paper-plane"></i> درخواست برداشت</button>
+    <button class="btn btn-secondary" onclick="navigateTo('home')" style="margin-top:10px;">🔙 بازگشت</button>
+</div>
+
+<!-- ========== صفحه راهنما ========== -->
+<div class="page" id="page-help">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-book-open"></i> راهنمای سریع</div>
+        <p style="color:#8892b0; line-height:1.8;">
+            🎮 با دوئل سنگ-کاغذ-قیچی سکه جمع کنید.<br>
+            💰 هر سکه معادل ۱ تومان است.<br>
+            🧾 کارمزد ربات: ۱۰٪ از برد<br>
+            📞 پشتیبانی: <a href="https://t.me/Poshtibanitest1234" style="color:#4a6cf7;">@Poshtibanitest1234</a>
+        </p>
+    </div>
+    <button class="btn btn-secondary" onclick="navigateTo('home')">🔙 بازگشت</button>
+</div>
+
+<!-- ========== منوی پایین ========== -->
+<div class="bottom-nav">
+    <div class="nav-item active" data-page="home" onclick="navigateTo('home')">
+        <i class="fas fa-home"></i> خانه
+    </div>
+    <div class="nav-item" data-page="duel" onclick="navigateTo('duel')">
+        <i class="fas fa-crosshairs"></i> دوئل
+    </div>
+    <div class="nav-item" data-page="purchase" onclick="navigateTo('purchase')">
+        <i class="fas fa-cart-plus"></i> خرید
+    </div>
+    <div class="nav-item" data-page="withdraw" onclick="navigateTo('withdraw')">
+        <i class="fas fa-hand-holding-usd"></i> برداشت
+    </div>
+    <div class="nav-item" data-page="help" onclick="navigateTo('help')">
+        <i class="fas fa-question-circle"></i> راهنما
+    </div>
+</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    // ---------- متغیرها ----------
+    let selectedBet = 0;
+    let selectedMode = 3;
+    let selectedPurchase = 0;
+    let selectedWithdraw = 0;
+    let selectedFile = null;
+
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    // ---------- ارسال به ربات ----------
+    function sendToBot(data) {
+        tg.sendData(JSON.stringify(data));
+    }
+
+    function sendCommand(action) {
+        sendToBot({ action: action });
+    }
+
+    // ---------- ناوبری ----------
+    function navigateTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + pageId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[data-page="${pageId}"]`)?.classList.add('active');
+        if (pageId === 'home') {
+            sendCommand('get_balance');
+            sendCommand('get_stats'); // برای آمار (اختیاری)
+        }
+        if (pageId === 'withdraw') {
+            // دریافت اطلاعات برداشت امروز (اختیاری)
+        }
+    }
+
+    // ---------- دوئل ----------
+    document.querySelectorAll('.bet-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedBet = parseInt(this.dataset.amount);
+        });
+    });
+    // انتخاب پیش‌فرض
+    document.querySelector('.bet-btn[data-amount="5000"]')?.classList.add('selected');
+    selectedBet = 5000;
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedMode = parseInt(this.dataset.mode);
+        });
+    });
+    document.querySelector('.mode-btn[data-mode="3"]')?.classList.add('selected');
+    selectedMode = 3;
+
+    function startDuel() {
+        if (!selectedBet) {
+            alert('لطفاً مبلغ دوئل را انتخاب کنید');
+            return;
+        }
+        sendToBot({
+            action: 'start_duel',
+            bet: selectedBet,
+            mode: selectedMode
+        });
+        navigateTo('gameplay');
+        document.getElementById('gameStatus').innerText = '⏳ در حال جستجوی حریف...';
+    }
+
+    // ---------- انتخاب در بازی ----------
+    function makeChoice(choice) {
+        document.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+        document.querySelector(`.choice-card[data-choice="${choice}"]`)?.classList.add('selected');
+        sendToBot({
+            action: 'game_choice',
+            choice: choice
+        });
+        document.getElementById('gameStatus').innerText = '✅ انتخاب شما ثبت شد. منتظر حریف...';
+    }
+
+    function endGameplay() {
+        if (confirm('آیا از بازی خارج می‌شوید؟')) {
+            navigateTo('home');
+        }
+    }
+
+    // ---------- خرید ----------
+    document.querySelectorAll('.purchase-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.purchase-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedPurchase = parseInt(this.dataset.amount);
+        });
+    });
+    document.querySelector('.purchase-btn[data-amount="5000"]')?.classList.add('selected');
+    selectedPurchase = 5000;
+
+    // انتخاب عکس
+    document.getElementById('receiptPhoto').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            selectedFile = file;
+            document.getElementById('selectedFileName').innerText = '📎 ' + file.name;
+        } else {
+            selectedFile = null;
+            document.getElementById('selectedFileName').innerText = 'هیچ عکسی انتخاب نشده';
+        }
+    });
+
+    function sendPurchase() {
+        if (!selectedPurchase) {
+            alert('لطفاً مبلغ خرید را انتخاب کنید');
+            return;
+        }
+        const receiptText = document.getElementById('receiptText').value.trim();
+        // اگر عکس انتخاب شده، آن را به base64 تبدیل کن
+        if (selectedFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result.split(',')[1]; // حذف data:image/...
+                sendToBot({
+                    action: 'purchase_request',
+                    amount: selectedPurchase,
+                    receipt_text: receiptText,
+                    receipt_photo: base64
+                });
+                alert('✅ درخواست خرید ثبت شد. منتظر تأیید ادمین باشید.');
+                navigateTo('home');
+            };
+            reader.readAsDataURL(selectedFile);
+        } else {
+            // بدون عکس
+            sendToBot({
+                action: 'purchase_request',
+                amount: selectedPurchase,
+                receipt_text: receiptText
+            });
+            alert('✅ درخواست خرید ثبت شد. منتظر تأیید ادمین باشید.');
+            navigateTo('home');
+        }
+    }
+
+    // ---------- برداشت ----------
+    document.querySelectorAll('.withdraw-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.withdraw-btn').forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedWithdraw = parseInt(this.dataset.amount);
+        });
+    });
+    document.querySelector('.withdraw-btn[data-amount="10000"]')?.classList.add('selected');
+    selectedWithdraw = 10000;
+
+    function registerCard() {
+        const card = document.getElementById('withdrawCard').value.trim().replace(/\s/g, '');
+        if (card.length !== 16 || !/^\d+$/.test(card)) {
+            alert('شماره کارت ۱۶ رقمی وارد کنید');
+            return;
+        }
+        sendToBot({
+            action: 'register_card',
+            card: card
+        });
+        alert('✅ شماره کارت ثبت شد');
+    }
+
+    function sendWithdraw() {
+        if (!selectedWithdraw) {
+            alert('لطفاً مبلغ برداشت را انتخاب کنید');
+            return;
+        }
+        const card = document.getElementById('withdrawCard').value.trim().replace(/\s/g, '');
+        if (card.length !== 16 || !/^\d+$/.test(card)) {
+            alert('ابتدا شماره کارت ۱۶ رقمی را ثبت کنید');
+            return;
+        }
+        sendToBot({
+            action: 'withdraw_request',
+            amount: selectedWithdraw,
+            card: card
+        });
+        alert('✅ درخواست برداشت ثبت شد. منتظر تأیید ادمین باشید.');
+        navigateTo('home');
+    }
+
+    // ---------- نمایش موجودی (با دریافت از ربات) ----------
+    // ربات پیام موجودی را به چت می‌فرستد، اما می‌توانیم از طریق answerWebAppQuery هم این کار را کنیم،
+    // اما برای سادگی از پیام‌های چت استفاده می‌کنیم.
+    // در اینجا فقط یک نمایش اولیه داریم.
+    window.onload = function() {
+        sendCommand('get_balance');
+        // برای دریافت آمار (اختیاری)
+    };
+</script>
+</body>
+</html>
